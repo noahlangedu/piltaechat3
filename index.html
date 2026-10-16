@@ -3,168 +3,61 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#080b13">
-<meta name="description" content="PILTAE CHAT — a community chat with accounts and moderation.">
 <title>PILTAE CHAT</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 :root {
   color-scheme: dark;
-  --bg: #080b13;
-  --panel: #111827;
-  --panel2: #0b1220;
-  --line: #28364b;
-  --text: #edf4ff;
-  --muted: #91a1b8;
-  --blue: #50a5ff;
-  --cyan: #62f0e9;
-  --red: #ff687d;
-  --green: #60e5a5;
-  --gold: #ffd779;
+  --bg:#080b13; --panel:#111827; --line:#28364b;
+  --text:#edf4ff; --muted:#91a1b8; --blue:#50a5ff;
+  --cyan:#62f0e9; --red:#ff687d; --green:#60e5a5; --gold:#ffd779;
 }
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  min-height: 100vh;
-  background:
-    radial-gradient(ellipse at 50% -20%, #203e66 0%, transparent 55%),
-    var(--bg);
-  color: var(--text);
-  font: 15px/1.5 system-ui, -apple-system, Segoe UI, sans-serif;
-}
-button, input, select, textarea { font: inherit; }
-button {
-  background: #193453;
-  color: white;
-  border: 1px solid #365b83;
-  border-radius: 9px;
-  padding: 10px 13px;
-  cursor: pointer;
-  transition: filter .15s, transform .15s;
-}
-button:hover { filter: brightness(1.2); }
-button:active { transform: scale(.98); }
-button:disabled { opacity: .5; cursor: not-allowed; }
-button.danger { background: #481e2a; border-color: #793448; }
-button.good { background: #12402f; border-color: #287454; }
-button.secondary { background: #141d2b; border-color: var(--line); }
-input, select, textarea {
-  width: 100%;
-  background: #080e18;
-  color: var(--text);
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 11px 12px;
-  outline: none;
-}
-input:focus, select:focus, textarea:focus { border-color: var(--blue); }
-label { display: block; color: var(--muted); margin: 10px 0 5px; }
-a { color: var(--cyan); }
-header {
-  padding: 19px 5%;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 14px;
-  background: #080b13e8;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  backdrop-filter: blur(12px);
-}
-.logo { font-size: 22px; font-weight: 900; letter-spacing: 3px; }
-.logo span { color: var(--cyan); }
-.tag { color: var(--muted); font-size: 11px; letter-spacing: 2px; }
-main { width: min(1200px, 94%); margin: 26px auto 55px; }
-.panel {
-  background: linear-gradient(145deg, #121b2b, #0b111d);
-  border: 1px solid var(--line);
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 18px;
-  box-shadow: 0 12px 35px #0002;
-  min-width: 0;
-}
-h1, h2, h3 { margin-top: 0; }
-h1 { font-size: clamp(23px, 4vw, 35px); line-height: 1.2; }
-h2 { font-size: 18px; }
-.muted { color: var(--muted); }
-.small { font-size: 12px; }
-.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 18px; }
-.row { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
-.row > * { min-width: 0; }
-.row .grow { flex: 1; }
-.pill {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 99px;
-  font-size: 11px;
-  border: 1px solid var(--line);
-  color: var(--muted);
-}
-.pill.owner { color: var(--gold); border-color: #76612c; }
-.pill.moderator { color: #c8a7ff; border-color: #57417d; }
-#authPanel { max-width: 580px; margin: 32px auto; }
-#chatPanel { display: none; }
-#ownerPanel { display: none; border-color: #65542c; }
-#messages {
-  height: min(54vh, 540px);
-  min-height: 260px;
-  overflow-y: auto;
-  overflow-wrap: anywhere;
-  background: #080d16;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  padding: 14px;
-  scroll-behavior: smooth;
-}
-.message { padding: 11px 0; border-bottom: 1px solid #1c293a; }
-.message:last-child { border-bottom: 0; }
-.message-top { display: flex; gap: 9px; flex-wrap: wrap; align-items: baseline; }
-.message-user { color: var(--cyan); font-weight: 800; }
-.message-user.owner { color: var(--gold); }
-.message-user.moderator { color: #c8a7ff; }
-.time { color: #71829a; font-size: 11px; }
-.message-content { margin-top: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
-#sendForm { display: flex; gap: 8px; margin-top: 10px; }
-#sendForm input { flex: 1; min-width: 0; }
-#sendForm button { flex: 0 0 auto; }
-.status {
-  border: 1px solid var(--line);
-  padding: 10px 12px;
-  border-radius: 9px;
-  margin: 12px 0;
-  color: var(--muted);
-  overflow-wrap: anywhere;
-}
-.status.error { color: #ff9eac; border-color: #733342; }
-.status.success { color: var(--green); border-color: #245d48; }
-.notice { background: #0b1421; border-left: 3px solid var(--cyan); padding: 12px; border-radius: 6px; }
-.member {
-  padding: 15px 0;
-  border-bottom: 1px solid var(--line);
-}
-.member:last-child { border-bottom: 0; }
-.member-actions { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
-.member-actions button { padding: 7px 10px; font-size: 12px; }
-details summary { cursor: pointer; color: var(--cyan); }
-hr { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
-footer { text-align: center; color: var(--muted); font-size: 12px; padding: 25px 5%; }
-.hidden { display: none !important; }
-@media (max-width: 760px) {
-  .grid { grid-template-columns: 1fr; }
-  header { position: static; }
-  .panel { padding: 15px; }
-  #messages { height: 50vh; }
-}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -20%,#203e66,transparent 55%),var(--bg);color:var(--text);font:15px/1.5 system-ui,sans-serif}
+button,input{font:inherit}
+button{background:#193453;color:white;border:1px solid #365b83;border-radius:9px;padding:10px 13px;cursor:pointer}
+button:hover{filter:brightness(1.15)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.danger{background:#481e2a;border-color:#793448}
+button.good{background:#12402f;border-color:#287454}
+button.secondary{background:#141d2b;border-color:var(--line)}
+input{width:100%;background:#080e18;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px 12px;outline:none}
+input:focus{border-color:var(--blue)}
+label{display:block;color:var(--muted);margin:10px 0 5px}
+header{padding:19px 5%;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;background:#080b13e8}
+.logo{font-size:22px;font-weight:900;letter-spacing:3px}.logo span{color:var(--cyan)}
+.tag{color:var(--muted);font-size:11px;letter-spacing:2px}
+main{width:min(1200px,94%);margin:26px auto 55px}
+.panel{background:linear-gradient(145deg,#121b2b,#0b111d);border:1px solid var(--line);border-radius:15px;padding:20px;margin-bottom:18px;min-width:0}
+h1,h2,h3{margin-top:0}h1{font-size:clamp(23px,4vw,35px)}h2{font-size:18px}
+.muted{color:var(--muted)}.small{font-size:12px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:18px}
+.row{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+.pill{display:inline-block;padding:3px 8px;border-radius:99px;font-size:11px;border:1px solid var(--line);color:var(--muted)}
+.pill.owner{color:var(--gold);border-color:#76612c}.pill.moderator{color:#c8a7ff;border-color:#57417d}
+#authPanel{max-width:580px;margin:32px auto}#chatPanel,#ownerPanel{display:none}
+#ownerPanel{border-color:#65542c}
+#messages{height:min(54vh,540px);min-height:260px;overflow-y:auto;overflow-wrap:anywhere;background:#080d16;border:1px solid var(--line);border-radius:11px;padding:14px}
+.message{padding:11px 0;border-bottom:1px solid #1c293a}.message:last-child{border:0}
+.message-top{display:flex;gap:9px;flex-wrap:wrap;align-items:baseline}
+.message-user{color:var(--cyan);font-weight:800}.message-user.owner{color:var(--gold)}.message-user.moderator{color:#c8a7ff}
+.time{color:#71829a;font-size:11px}.message-content{margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}
+#sendForm{display:flex;gap:8px;margin-top:10px}#sendForm input{flex:1;min-width:0}
+.status{border:1px solid var(--line);padding:10px 12px;border-radius:9px;margin:12px 0;color:var(--muted);overflow-wrap:anywhere}
+.status.error{color:#ff9eac;border-color:#733342}.status.success{color:var(--green);border-color:#245d48}
+.notice{background:#0b1421;border-left:3px solid var(--cyan);padding:12px;border-radius:6px}
+.member{padding:15px 0;border-bottom:1px solid var(--line)}.member:last-child{border:0}
+.member-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.member-actions button{padding:7px 10px;font-size:12px}
+details summary{cursor:pointer;color:var(--cyan)}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:25px 5%}
+.hidden{display:none!important}
+@media(max-width:760px){.grid{grid-template-columns:1fr}header{position:static}.panel{padding:15px}#messages{height:50vh}}
 </style>
 </head>
-
 <body>
 <header>
   <div>
@@ -181,60 +74,37 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 25px
 <main>
   <section class="panel">
     <h1>One chat. One community.</h1>
-    <p class="muted">
-      Welcome to PILTAE CHAT. Create an account to join the conversation.
-      Be respectful, protect your personal information, and follow the rules.
-    </p>
-    <div class="notice small">
-      <strong>Privacy notice:</strong> Your account is used to provide this chat.
-      Other members can read messages you send. Never post passwords or sensitive
-      personal information. No online service can guarantee that data will never
-      be exposed. Read the full privacy notice below.
-    </div>
+    <p class="muted">Welcome to PILTAE CHAT. Create an account to join the conversation. Be respectful and protect your personal information.</p>
+    <div class="notice small"><strong>Privacy notice:</strong> Account information is used to operate the chat. Other members can read messages you send. Never post passwords or sensitive personal information. No online service can guarantee that data will never be exposed.</div>
   </section>
 
   <section id="authPanel" class="panel">
-    <h2 id="authTitle">Sign in to PILTAE CHAT</h2>
-    <p class="muted small">You need an account to read and send chat messages.</p>
-
+    <h2>Sign in to PILTAE CHAT</h2>
+    <p class="muted small">You need an account to read and send messages.</p>
     <div id="authMessage" class="status hidden" role="status" aria-live="polite"></div>
-
     <form id="loginForm">
       <label for="loginEmail">Email address</label>
       <input id="loginEmail" type="email" autocomplete="email" maxlength="254" required>
-
       <label for="loginPassword">Password</label>
       <input id="loginPassword" type="password" autocomplete="current-password" required>
-
-      <button id="loginButton" type="submit" style="width:100%;margin-top:14px">
-        Sign in
-      </button>
+      <button id="loginButton" type="submit" style="width:100%;margin-top:14px">Sign in</button>
     </form>
-
     <hr>
-
     <details id="registerDetails">
       <summary>Create a new account</summary>
       <form id="registerForm">
         <label for="registerUsername">Display name</label>
-        <input id="registerUsername" autocomplete="username" minlength="3" maxlength="24"
-          pattern="[A-Za-z0-9_]{3,24}" required>
+        <input id="registerUsername" autocomplete="username" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" required>
         <p class="muted small">3–24 letters, numbers, or underscores.</p>
-
         <label for="registerEmail">Email address</label>
         <input id="registerEmail" type="email" autocomplete="email" maxlength="254" required>
-
         <label for="registerPassword">Password</label>
-        <input id="registerPassword" type="password" autocomplete="new-password"
-          minlength="10" required>
+        <input id="registerPassword" type="password" autocomplete="new-password" minlength="10" required>
         <p class="muted small">Use a strong, unique password of at least 10 characters.</p>
-
         <label style="display:flex;gap:9px;align-items:flex-start">
           <input id="privacyConsent" type="checkbox" required style="width:auto;margin-top:5px">
-          <span class="small">I understand how PILTAE CHAT uses account information and that
-            chat messages are visible to other members.</span>
+          <span class="small">I understand that my account information is used to operate PILTAE CHAT and messages are visible to other members.</span>
         </label>
-
         <button type="submit" style="width:100%;margin-top:14px">Create account</button>
       </form>
     </details>
@@ -248,46 +118,36 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 25px
           <p class="muted small">Signed in as</p>
           <div id="accountName" style="font-weight:800;font-size:18px">Loading…</div>
           <div id="accountRole" style="margin-top:7px"></div>
-
           <form id="usernameForm">
             <label for="newUsername">Change display name</label>
-            <input id="newUsername" minlength="3" maxlength="24"
-              pattern="[A-Za-z0-9_]{3,24}" required>
-            <button type="submit" class="secondary" style="width:100%;margin-top:8px">
-              Save display name
-            </button>
+            <input id="newUsername" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" required>
+            <button type="submit" class="secondary" style="width:100%;margin-top:8px">Save display name</button>
           </form>
           <div id="accountMessage" class="status hidden" role="status" aria-live="polite"></div>
         </section>
-
         <section class="panel">
           <h2>Chat rules</h2>
           <ul class="muted small">
             <li>Be respectful to other members.</li>
             <li>No spam, threats, or harassment.</li>
             <li>Never share passwords or private account details.</li>
-            <li>Follow moderator and owner instructions.</li>
+            <li>Follow moderation instructions.</li>
           </ul>
           <p class="muted small">Messages have a 500-character limit.</p>
         </section>
       </div>
-
       <div>
         <section class="panel">
           <div class="row" style="justify-content:space-between">
-            <h2 style="margin-bottom:12px">Global chat</h2>
-            <span class="pill">PILTAE NETWORK</span>
+            <h2>Global chat</h2><span class="pill">PILTAE NETWORK</span>
           </div>
           <div id="chatMessage" class="status hidden" role="status" aria-live="polite"></div>
-          <div id="messages" aria-live="polite">
-            <p class="muted">Loading messages…</p>
-          </div>
+          <div id="messages" aria-live="polite"><p class="muted">Loading messages…</p></div>
           <form id="sendForm">
-            <input id="messageInput" maxlength="500" autocomplete="off"
-              placeholder="Write a message…" required>
+            <input id="messageInput" maxlength="500" autocomplete="off" placeholder="Write a message…" required>
             <button id="sendButton" type="submit">Send</button>
           </form>
-          <p class="muted small">Messages are stored in the chat database and may be visible to members.</p>
+          <p class="muted small">Messages are stored in the database and visible to chat members.</p>
         </section>
       </div>
     </div>
@@ -295,759 +155,404 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 25px
 
   <section id="ownerPanel" class="panel">
     <h2>♛ PILTAE OP CONTROL</h2>
-    <p class="muted small">
-      Owner-only tools. Moderation actions are checked by Supabase, not just this page.
-      Permanent bans have no automatic expiry.
-    </p>
+    <p class="muted small">Owner-only tools. Supabase checks moderation permissions. A permanent ban has no automatic expiry.</p>
     <div id="ownerMessage" class="status hidden" role="status" aria-live="polite"></div>
-
     <div class="row">
       <button id="refreshMembers" type="button">Refresh member list</button>
       <button id="refreshMessages" class="secondary" type="button">Refresh messages</button>
     </div>
-
     <label for="moderationReason">Reason for the next moderation action</label>
     <input id="moderationReason" maxlength="300" placeholder="Optional reason">
-
-    <label for="moderationDuration">Duration in minutes (mute/kick/temporary ban)</label>
+    <label for="moderationDuration">Duration in minutes</label>
     <input id="moderationDuration" type="number" min="1" max="525600" value="10">
-
     <hr>
     <h3>Members and moderation</h3>
-    <p class="muted small">
-      Kick temporarily blocks chat access for 2 minutes by default.
-      A mute or ban uses the selected duration. Choose permanent ban for an indefinite ban.
-    </p>
-    <div id="memberList"><p class="muted">Load the member list to begin.</p></div>
+    <p class="muted small">Mute and temporary ban use the selected duration. Kick uses 2 minutes. You can remove an active mute or ban later.</p>
+    <div id="memberList"><p class="muted">Loading members…</p></div>
   </section>
 
   <section class="panel" id="privacy">
     <h2>Privacy &amp; safety</h2>
     <h3 class="small">What information is used?</h3>
-    <p class="muted small">
-      PILTAE CHAT uses your email address for account authentication. Your account ID,
-      display name, messages, and moderation records are used to operate the service,
-      display chat messages, protect the community, and enforce moderation.
-    </p>
-    <h3 class="small">Is my password visible to chat members?</h3>
-    <p class="muted small">
-      No. This website sends passwords to Supabase Authentication for sign-up and sign-in.
-      It does not put passwords in chat messages or the public messages table. Use a unique
-      password and never send it to anyone.
-    </p>
+    <p class="muted small">Your email is used for authentication. Your account ID, display name, messages, and moderation records are used to operate the service and protect the community.</p>
+    <h3 class="small">Are passwords visible to chat members?</h3>
+    <p class="muted small">No. Passwords are submitted to Supabase Authentication and are not put into chat messages or the public messages table. Use a unique password and never share it.</p>
     <h3 class="small">Will information be stolen or sold?</h3>
-    <p class="muted small">
-      PILTAE CHAT is intended to use account information only to operate and secure the chat.
-      This page does not intentionally collect payment details or request access to your
-      other accounts. However, a privacy notice cannot guarantee that information will
-      never be exposed, and this website cannot independently guarantee how every
-      infrastructure provider processes data. Review Supabase's privacy and security
-      documentation for its services.
-    </p>
-    <h3 class="small">Who can read my messages?</h3>
-    <p class="muted small">
-      Messages are not private direct messages. Authenticated chat members can read messages.
-      Do not post passwords, financial information, home addresses, or other sensitive data.
-      Administrators may review chat information to moderate the community.
-    </p>
-    <h3 class="small">Cookies and sessions</h3>
-    <p class="muted small">
-      Supabase's client library maintains an authentication session so you do not need to
-      sign in after every page action. Do not stay signed in on a shared computer.
-    </p>
-    <h3 class="small">Data retention and account requests</h3>
-    <p class="muted small">
-      Messages and moderation records may remain in the database until the service owner
-      deletes them or implements a retention policy. Contact the site owner to request
-      assistance with account or data deletion. Account deletion should be handled through
-      a secure administrative process.
-    </p>
-    <p class="muted small">
-      This notice describes the intended operation of PILTAE CHAT; it is not a guarantee
-      against breaches or a substitute for reviewing applicable legal requirements.
-    </p>
+    <p class="muted small">PILTAE CHAT is intended to use account information to provide the chat and its moderation features. This website does not request payment details or access to your other accounts. However, no online service can guarantee that information will never be exposed. Review your provider's privacy and security documentation.</p>
+    <h3 class="small">Who can read messages?</h3>
+    <p class="muted small">Messages are not private direct messages. Authenticated members can read chat messages, and authorized administrators may review information to moderate the community. Never post passwords, financial details, or other sensitive information.</p>
+    <h3 class="small">Sessions and data retention</h3>
+    <p class="muted small">Your login session is maintained so you do not need to sign in after every action. Log out on shared devices. Messages and moderation records may remain stored until the owner deletes them or establishes a retention policy. Contact the site owner for data requests.</p>
+    <p class="muted small">This notice describes the intended operation of PILTAE CHAT; it is not a guarantee against breaches or a substitute for reviewing applicable legal requirements.</p>
   </section>
 </main>
-
-<footer>
-  PILTAE CHAT · Community service · Protect your account · Think before you post
-</footer>
+<footer>PILTAE CHAT · Community service · Protect your account · Think before you post</footer>
 
 <script>
 (() => {
   "use strict";
 
-  // Use the Project URL, not the /rest/v1/ URL.
+  // Your Supabase project URL is already filled in.
   const SUPABASE_URL = "https://trjuphmbtcmijlknzspr.supabase.co";
+  // Replace with your Supabase PUBLISHABLE key. Never use a service_role/secret key here.
   const SUPABASE_PUBLISHABLE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
 
-  const $ = (id) => document.getElementById(id);
-  const el = {
-    connection: $("connectionLabel"),
-    headerUser: $("headerUser"),
-    headerLogout: $("headerLogout"),
-    authPanel: $("authPanel"),
-    authTitle: $("authTitle"),
-    authMessage: $("authMessage"),
-    loginForm: $("loginForm"),
-    loginEmail: $("loginEmail"),
-    loginPassword: $("loginPassword"),
-    loginButton: $("loginButton"),
-    registerDetails: $("registerDetails"),
-    registerForm: $("registerForm"),
-    registerUsername: $("registerUsername"),
-    registerEmail: $("registerEmail"),
-    registerPassword: $("registerPassword"),
-    privacyConsent: $("privacyConsent"),
-    chatPanel: $("chatPanel"),
-    accountName: $("accountName"),
-    accountRole: $("accountRole"),
-    usernameForm: $("usernameForm"),
-    newUsername: $("newUsername"),
-    accountMessage: $("accountMessage"),
-    chatMessage: $("chatMessage"),
-    messages: $("messages"),
-    sendForm: $("sendForm"),
-    messageInput: $("messageInput"),
-    sendButton: $("sendButton"),
-    ownerPanel: $("ownerPanel"),
-    ownerMessage: $("ownerMessage"),
-    refreshMembers: $("refreshMembers"),
-    refreshMessages: $("refreshMessages"),
-    moderationReason: $("moderationReason"),
-    moderationDuration: $("moderationDuration"),
-    memberList: $("memberList")
+  const $ = id => document.getElementById(id);
+  const ui = {
+    connection:$("connectionLabel"), headerUser:$("headerUser"), logout:$("headerLogout"),
+    auth:$("authPanel"), authMessage:$("authMessage"), login:$("loginForm"),
+    loginEmail:$("loginEmail"), loginPassword:$("loginPassword"), loginButton:$("loginButton"),
+    register:$("registerForm"), registerUsername:$("registerUsername"),
+    registerEmail:$("registerEmail"), registerPassword:$("registerPassword"),
+    privacyConsent:$("privacyConsent"), chat:$("chatPanel"), accountName:$("accountName"),
+    accountRole:$("accountRole"), usernameForm:$("usernameForm"), newUsername:$("newUsername"),
+    accountMessage:$("accountMessage"), chatMessage:$("chatMessage"), messages:$("messages"),
+    send:$("sendForm"), messageInput:$("messageInput"), sendButton:$("sendButton"),
+    owner:$("ownerPanel"), ownerMessage:$("ownerMessage"), refreshMembers:$("refreshMembers"),
+    refreshMessages:$("refreshMessages"), reason:$("moderationReason"),
+    duration:$("moderationDuration"), memberList:$("memberList")
   };
 
-  let supabase = null;
-  let currentUser = null;
-  let profile = null;
-  let realtimeChannel = null;
-  let refreshTimer = null;
-  let messagesLoading = false;
-  let lastMessageId = null;
-  let busy = false;
+  let sb, user=null, profile=null, channel=null, pollTimer=null, loading=false, lastFingerprint="", sending=false;
 
-  function setStatus(node, message, kind = "") {
-    node.textContent = message;
-    node.className = "status" + (kind ? " " + kind : "");
+  function status(node, text, kind="") {
+    node.textContent=text;
+    node.className="status"+(kind?" "+kind:"");
     node.classList.remove("hidden");
   }
-
-  function clearStatus(node) {
-    node.textContent = "";
-    node.className = "status hidden";
+  function clear(node) { node.textContent=""; node.className="status hidden"; }
+  function errText(e) {
+    const m=e?.message || String(e);
+    if (/Invalid login credentials/i.test(m)) return "Incorrect email or password.";
+    if (/Email not confirmed/i.test(m)) return "Confirm your email before signing in.";
+    if (/User already registered/i.test(m)) return "That email already has an account. Please sign in.";
+    if (/duplicate key|unique constraint/i.test(m)) return "That display name is already in use.";
+    if (/Owner permission required/i.test(m)) return "Owner permission required.";
+    if (/row-level security|chat_can_send/i.test(m)) return "Message blocked by database permissions. You may be muted or banned, or the SQL setup needs checking.";
+    return m;
   }
-
-  function readableError(error) {
-    const message = error && error.message ? error.message : String(error);
-    if (/Invalid login credentials/i.test(message)) return "Incorrect email or password.";
-    if (/Email not confirmed/i.test(message)) return "Please confirm your email using the link we sent you.";
-    if (/User already registered/i.test(message)) return "That email already has an account. Try signing in.";
-    if (/duplicate key|unique constraint/i.test(message)) return "That display name is already in use.";
-    if (/Owner permission required/i.test(message)) return "Owner permission required.";
-    if (/You must sign in/i.test(message)) return "Please sign in and try again.";
-    if (/chat_can_send|row-level security|violates row-level security/i.test(message)) {
-      return "Your message was blocked by chat permissions. You may be muted or banned, or the database setup needs checking.";
-    }
-    return message;
+  function showError(node,e) { console.error(e); status(node,errText(e),"error"); }
+  function connection(text,good=false) { ui.connection.textContent=text; ui.connection.style.color=good?"var(--green)":"var(--muted)"; }
+  function validName(n) { return /^[A-Za-z0-9_]{3,24}$/.test(n); }
+  function node(tag,cls,text) {
+    const n=document.createElement(tag);
+    if(cls)n.className=cls;
+    if(text!==undefined)n.textContent=String(text);
+    return n;
   }
-
-  function showError(node, error) {
-    console.error(error);
-    setStatus(node, readableError(error), "error");
+  function dateText(v) {
+    const d=new Date(v);
+    return Number.isNaN(d.getTime())?"":d.toLocaleString();
   }
-
-  function setConnection(text, good = false) {
-    el.connection.textContent = text;
-    el.connection.style.color = good ? "var(--green)" : "var(--muted)";
+  async function getSession() {
+    const {data,error}=await sb.auth.getSession();
+    if(error)throw error;
+    user=data.session?.user||null;
   }
-
-  function validUsername(name) {
-    return /^[A-Za-z0-9_]{3,24}$/.test(name);
+  async function loadProfile() {
+    const {data,error}=await sb.from("profiles")
+      .select("user_id,username,role").eq("user_id",user.id).single();
+    if(error)throw error;
+    profile=data;
   }
-
-  function safeText(value) {
-    return String(value ?? "");
+  function updateAccount() {
+    ui.headerUser.textContent=profile.username;
+    ui.logout.classList.remove("hidden");
+    ui.accountName.textContent=profile.username;
+    ui.newUsername.value=profile.username;
+    ui.accountRole.replaceChildren(node("span","pill "+(profile.role==="owner"?"owner":profile.role==="moderator"?"moderator":""),profile.role.toUpperCase()));
+    ui.owner.style.display=profile.role==="owner"?"block":"none";
   }
-
-  function make(tag, className, text) {
-    const node = document.createElement(tag);
-    if (className) node.className = className;
-    if (text !== undefined) node.textContent = text;
-    return node;
-  }
-
-  function formatDate(value) {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "";
-    return date.toLocaleString();
-  }
-
-  async function requireSession() {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    currentUser = data.session ? data.session.user : null;
-    return currentUser;
-  }
-
   async function signOutLocal() {
-    if (realtimeChannel) {
-      await supabase.removeChannel(realtimeChannel);
-      realtimeChannel = null;
-    }
-    if (refreshTimer) {
-      clearInterval(refreshTimer);
-      refreshTimer = null;
-    }
-
-    currentUser = null;
-    profile = null;
-    lastMessageId = null;
-    el.authPanel.style.display = "";
-    el.chatPanel.style.display = "none";
-    el.ownerPanel.style.display = "none";
-    el.headerLogout.classList.add("hidden");
-    el.headerUser.textContent = "Not signed in";
-    el.messages.replaceChildren();
-    el.memberList.replaceChildren();
-    setConnection("Signed out");
+    if(channel){await sb.removeChannel(channel);channel=null;}
+    if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
+    user=null;profile=null;lastFingerprint="";
+    ui.auth.style.display="";ui.chat.style.display="none";ui.owner.style.display="none";
+    ui.logout.classList.add("hidden");ui.headerUser.textContent="Not signed in";
+    ui.messages.replaceChildren();ui.memberList.replaceChildren();
+    connection("Signed out");
   }
-
   async function signOut() {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      const {error}=await sb.auth.signOut();
+      if(error)throw error;
       await signOutLocal();
-      setStatus(el.authMessage, "You have signed out.", "success");
-    } catch (error) {
-      showError(el.authMessage, error);
-    }
+      status(ui.authMessage,"You have signed out.","success");
+    } catch(e) { showError(ui.authMessage,e); }
   }
-
-  async function loadProfile() {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("user_id, username, role")
-      .eq("user_id", currentUser.id)
-      .single();
-
-    if (error) throw error;
-    profile = data;
-    return profile;
+  async function showApp() {
+    await getSession();
+    if(!user){await signOutLocal();return;}
+    clear(ui.authMessage);clear(ui.chatMessage);clear(ui.accountMessage);
+    ui.auth.style.display="none";ui.chat.style.display="block";
+    await loadProfile();updateAccount();await loadMessages();startRealtime();
+    if(profile.role==="owner")await loadMembers();
   }
-
-  function updateAccountUI() {
-    el.headerUser.textContent = profile.username;
-    el.headerLogout.classList.remove("hidden");
-    el.accountName.textContent = profile.username;
-    el.newUsername.value = profile.username;
-
-    el.accountRole.replaceChildren();
-    const rolePill = make("span", "pill " + (profile.role === "owner" ? "owner" : profile.role === "moderator" ? "moderator" : ""), profile.role.toUpperCase());
-    el.accountRole.append(rolePill);
-
-    el.ownerPanel.style.display = profile.role === "owner" ? "block" : "none";
-    if (profile.role !== "owner") {
-      el.memberList.replaceChildren();
-    }
+  async function login(e) {
+    e.preventDefault();clear(ui.authMessage);ui.loginButton.disabled=true;
+    try {
+      const {error}=await sb.auth.signInWithPassword({
+        email:ui.loginEmail.value.trim(),password:ui.loginPassword.value
+      });
+      if(error)throw error;
+      ui.loginPassword.value="";
+      await showApp();
+    } catch(ex) { showError(ui.authMessage,ex); }
+    finally { ui.loginButton.disabled=false; }
   }
-
+  async function register(e) {
+    e.preventDefault();clear(ui.authMessage);
+    const username=ui.registerUsername.value.trim();
+    const email=ui.registerEmail.value.trim();
+    const password=ui.registerPassword.value;
+    if(!validName(username)){status(ui.authMessage,"Use 3–24 letters, numbers, or underscores for your name.","error");return;}
+    if(!ui.privacyConsent.checked){status(ui.authMessage,"Please acknowledge the privacy notice.","error");return;}
+    try {
+      const {data,error}=await sb.auth.signUp({email,password});
+      if(error)throw error;
+      if(!data.user)throw new Error("Account creation did not return a user.");
+      if(data.session) {
+        const {error:nameError}=await sb.rpc("set_chat_username",{new_username:username});
+        if(nameError)throw nameError;
+        ui.registerPassword.value="";
+        status(ui.authMessage,"Account created. You're signed in.","success");
+        await showApp();
+      } else {
+        // Save requested name after email confirmation by storing it temporarily in this browser.
+        // A user must still authenticate before the database will accept the name change.
+        try { sessionStorage.setItem("piltae_pending_username",username); } catch(_) {}
+        ui.registerPassword.value="";
+        status(ui.authMessage,"Account created. Check your email, confirm your account, then sign in to finish setting your display name.","success");
+      }
+    } catch(ex) { showError(ui.authMessage,ex); }
+  }
+  async function setUsername(e) {
+    e.preventDefault();clear(ui.accountMessage);
+    const name=ui.newUsername.value.trim();
+    if(!validName(name)){status(ui.accountMessage,"Use 3–24 letters, numbers, or underscores.","error");return;}
+    try {
+      const {error}=await sb.rpc("set_chat_username",{new_username:name});
+      if(error)throw error;
+      await loadProfile();updateAccount();lastFingerprint="";await loadMessages();
+      status(ui.accountMessage,"Display name updated.","success");
+    } catch(ex) { showError(ui.accountMessage,ex); }
+  }
+  async function sendMessage(e) {
+    e.preventDefault();clear(ui.chatMessage);
+    const content=ui.messageInput.value.trim();
+    if(!content)return;
+    if(content.length>500){status(ui.chatMessage,"Messages cannot exceed 500 characters.","error");return;}
+    if(sending)return;
+    sending=true;ui.sendButton.disabled=true;
+    try {
+      await getSession();
+      if(!user||!profile)throw new Error("Please sign in again.");
+      const {error}=await sb.from("messages").insert({
+        user_id:user.id,username:profile.username,content
+      });
+      if(error)throw error;
+      ui.messageInput.value="";
+      await loadMessages();
+    } catch(ex) { showError(ui.chatMessage,ex); }
+    finally { sending=false;ui.sendButton.disabled=false; }
+  }
   async function loadMessages() {
-    if (!currentUser || messagesLoading) return;
-    messagesLoading = true;
-
+    if(!user||loading)return;
+    loading=true;
     try {
-      const { data, error } = await supabase
-        .from("messages")
-        .select("id, user_id, username, content, created_at")
-        .order("created_at", { ascending: false })
-        .limit(100);
-
-      if (error) throw error;
-
-      const rows = (data || []).reverse();
-      const newLastId = rows.length ? rows[rows.length - 1].id : null;
-
-      // Avoid repainting the whole chat if the message set hasn't changed.
-      if (String(newLastId) !== String(lastMessageId) || el.messages.dataset.loaded !== "yes") {
+      const {data,error}=await sb.from("messages")
+        .select("id,user_id,username,content,created_at")
+        .order("created_at",{ascending:false}).limit(100);
+      if(error)throw error;
+      const rows=(data||[]).reverse();
+      const fingerprint=rows.map(r=>r.id).join(",")+"|"+rows.length;
+      if(fingerprint!==lastFingerprint||ui.messages.dataset.loaded!=="yes") {
         renderMessages(rows);
-        lastMessageId = newLastId;
-        el.messages.dataset.loaded = "yes";
+        lastFingerprint=fingerprint;
+        ui.messages.dataset.loaded="yes";
       }
-      setConnection("Connected", true);
-    } catch (error) {
-      showError(el.chatMessage, error);
-      setConnection("Connection issue");
-    } finally {
-      messagesLoading = false;
-    }
+      connection("Connected",true);
+    } catch(ex) { showError(ui.chatMessage,ex);connection("Connection issue"); }
+    finally { loading=false; }
   }
-
   function renderMessages(rows) {
-    const previousScrollBottom =
-      el.messages.scrollHeight - el.messages.scrollTop - el.messages.clientHeight < 90;
-
-    const fragment = document.createDocumentFragment();
-
-    if (!rows.length) {
-      fragment.append(make("p", "muted", "No messages yet. Start the conversation."));
+    const wasBottom=ui.messages.scrollHeight-ui.messages.scrollTop-ui.messages.clientHeight<90;
+    const frag=document.createDocumentFragment();
+    if(!rows.length)frag.append(node("p","muted","No messages yet. Start the conversation."));
+    for(const r of rows) {
+      const article=node("article","message"),top=node("div","message-top");
+      const name=node("span","message-user",r.username);
+      const time=node("time","time",dateText(r.created_at));
+      if(r.created_at)time.dateTime=r.created_at;
+      top.append(name,time);
+      article.append(top,node("div","message-content",r.content));
+      frag.append(article);
     }
-
-    for (const item of rows) {
-      const wrapper = make("article", "message");
-      const top = make("div", "message-top");
-      const nameClass = item.user_id === currentUser?.id ? "message-user" : "message-user";
-
-      const name = make("span", nameClass, safeText(item.username));
-      const timestamp = make("time", "time", formatDate(item.created_at));
-      if (item.created_at) timestamp.dateTime = item.created_at;
-
-      top.append(name, timestamp);
-      const content = make("div", "message-content", safeText(item.content));
-      wrapper.append(top, content);
-      fragment.append(wrapper);
-    }
-
-    el.messages.replaceChildren(fragment);
-
-    if (previousScrollBottom) {
-      el.messages.scrollTop = el.messages.scrollHeight;
-    }
+    ui.messages.replaceChildren(frag);
+    if(wasBottom)ui.messages.scrollTop=ui.messages.scrollHeight;
   }
-
-  async function refreshChat() {
-    await loadMessages();
-  }
-
   function startRealtime() {
-    if (realtimeChannel) {
-      supabase.removeChannel(realtimeChannel);
-      realtimeChannel = null;
-    }
-
-    realtimeChannel = supabase
-      .channel("piltae-chat-live")
-      .on("postgres_changes", {
-        event: "INSERT",
-        schema: "public",
-        table: "messages"
-      }, () => {
-        loadMessages();
-      })
-      .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          setConnection("Realtime online", true);
-        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-          setConnection("Realtime reconnecting");
-        }
+    if(channel)sb.removeChannel(channel);
+    channel=sb.channel("piltae-chat-messages")
+      .on("postgres_changes",{event:"*",schema:"public",table:"messages"},()=>loadMessages())
+      .subscribe(s=>{
+        if(s==="SUBSCRIBED")connection("Realtime online",true);
+        else if(s==="CHANNEL_ERROR"||s==="TIMED_OUT")connection("Realtime reconnecting");
       });
-
-    // Fallback refresh also catches permission changes and missed events.
-    if (refreshTimer) clearInterval(refreshTimer);
-    refreshTimer = setInterval(() => {
-      if (currentUser) loadMessages();
-    }, 12000);
+    if(pollTimer)clearInterval(pollTimer);
+    pollTimer=setInterval(()=>{if(user)loadMessages();},12000);
   }
-
-  async function showSignedInApp() {
-    await requireSession();
-    if (!currentUser) {
-      await signOutLocal();
-      return;
-    }
-
-    clearStatus(el.authMessage);
-    clearStatus(el.chatMessage);
-    clearStatus(el.accountMessage);
-    el.authPanel.style.display = "none";
-    el.chatPanel.style.display = "block";
-    el.headerLogout.classList.remove("hidden");
-
-    try {
-      await loadProfile();
-      updateAccountUI();
-      await loadMessages();
-      startRealtime();
-
-      if (profile.role === "owner") {
-        await loadMembers();
-      }
-    } catch (error) {
-      showError(el.authMessage, error);
-      el.authPanel.style.display = "";
-      el.chatPanel.style.display = "none";
-      el.ownerPanel.style.display = "none";
-    }
+  function ownerCheck() {
+    if(!user||!profile||profile.role!=="owner")throw new Error("Owner permission required.");
   }
-
-  async function handleLogin(event) {
-    event.preventDefault();
-    clearStatus(el.authMessage);
-    el.loginButton.disabled = true;
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: el.loginEmail.value.trim(),
-        password: el.loginPassword.value
-      });
-      if (error) throw error;
-      el.loginPassword.value = "";
-      await showSignedInApp();
-    } catch (error) {
-      showError(el.authMessage, error);
-    } finally {
-      el.loginButton.disabled = false;
-    }
-  }
-
-  async function handleRegister(event) {
-    event.preventDefault();
-    clearStatus(el.authMessage);
-
-    const username = el.registerUsername.value.trim();
-    const email = el.registerEmail.value.trim();
-    const password = el.registerPassword.value;
-
-    if (!validUsername(username)) {
-      setStatus(el.authMessage, "Use 3–24 letters, numbers, or underscores for your display name.", "error");
-      return;
-    }
-
-    if (!el.privacyConsent.checked) {
-      setStatus(el.authMessage, "Please acknowledge the privacy notice to continue.", "error");
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password
-      });
-
-      if (error) throw error;
-
-      if (!data.user) {
-        throw new Error("Account creation did not return a user. Please try again.");
-      }
-
-      // The database trigger creates a default profile.
-      // If signup returns a session, set the chosen name immediately.
-      if (data.session) {
-        const { error: nameError } = await supabase.rpc("set_chat_username", {
-          new_username: username
-        });
-        if (nameError) throw nameError;
-
-        setStatus(el.authMessage, "Account created. You're signed in.", "success");
-        el.registerPassword.value = "";
-        await showSignedInApp();
-      } else {
-        setStatus(
-          el.authMessage,
-          "Account created. Check your email for a confirmation link. After confirming, sign in and set your display name.",
-          "success"
-        );
-        el.registerPassword.value = "";
-      }
-    } catch (error) {
-      showError(el.authMessage, error);
-    }
-  }
-
-  async function handleUsernameChange(event) {
-    event.preventDefault();
-    clearStatus(el.accountMessage);
-
-    const newUsername = el.newUsername.value.trim();
-    if (!validUsername(newUsername)) {
-      setStatus(el.accountMessage, "Use 3–24 letters, numbers, or underscores.", "error");
-      return;
-    }
-
-    try {
-      const { error } = await supabase.rpc("set_chat_username", {
-        new_username: newUsername
-      });
-      if (error) throw error;
-
-      await loadProfile();
-      updateAccountUI();
-      await loadMessages();
-      setStatus(el.accountMessage, "Display name updated.", "success");
-    } catch (error) {
-      showError(el.accountMessage, error);
-    }
-  }
-
-  async function handleSend(event) {
-    event.preventDefault();
-    clearStatus(el.chatMessage);
-
-    const content = el.messageInput.value.trim();
-    if (!content) return;
-    if (content.length > 500) {
-      setStatus(el.chatMessage, "Messages cannot exceed 500 characters.", "error");
-      return;
-    }
-    if (busy) return;
-
-    busy = true;
-    el.sendButton.disabled = true;
-
-    try {
-      await requireSession();
-      if (!currentUser || !profile) throw new Error("Please sign in again.");
-
-      const { error } = await supabase.from("messages").insert({
-        user_id: currentUser.id,
-        username: profile.username,
-        content
-      });
-
-      if (error) throw error;
-      el.messageInput.value = "";
-      await loadMessages();
-    } catch (error) {
-      showError(el.chatMessage, error);
-    } finally {
-      busy = false;
-      el.sendButton.disabled = false;
-    }
-  }
-
-  function ownerRequired() {
-    if (!currentUser || !profile || profile.role !== "owner") {
-      throw new Error("Owner permission required.");
-    }
-  }
-
   async function loadMembers() {
-    clearStatus(el.ownerMessage);
-
+    clear(ui.ownerMessage);
     try {
-      ownerRequired();
-      const { data, error } = await supabase.rpc("owner_list_members");
-      if (error) throw error;
-      renderMembers(data || []);
-    } catch (error) {
-      showError(el.ownerMessage, error);
-    }
+      ownerCheck();
+      const {data,error}=await sb.rpc("owner_list_members");
+      if(error)throw error;
+      renderMembers(data||[]);
+    } catch(ex) { showError(ui.ownerMessage,ex); }
   }
-
-  function addMemberAction(container, label, action, extra = {}) {
-    const button = make("button", extra.danger ? "danger" : extra.good ? "good" : "secondary", label);
-    button.type = "button";
-    button.addEventListener("click", () => action(extra));
-    container.append(button);
+  function actionButton(container,label,fn,cls="secondary") {
+    const b=node("button",cls,label);b.type="button";
+    b.addEventListener("click",fn);container.append(b);
   }
-
   function renderMembers(members) {
-    const fragment = document.createDocumentFragment();
-
-    if (!members.length) {
-      fragment.append(make("p", "muted", "No members found."));
-    }
-
-    for (const member of members) {
-      const card = make("div", "member");
-      const title = make("div");
-      const name = make("strong", "", safeText(member.member_username));
-      title.append(name);
-
-      if (member.member_role === "owner") {
-        title.append(document.createTextNode(" "));
-        title.append(make("span", "pill owner", "OWNER"));
-      } else if (member.member_role === "moderator") {
-        title.append(document.createTextNode(" "));
-        title.append(make("span", "pill moderator", "MODERATOR"));
+    const frag=document.createDocumentFragment();
+    if(!members.length)frag.append(node("p","muted","No members found."));
+    for(const m of members) {
+      const card=node("div","member"),title=node("div");
+      title.append(node("strong","",m.member_username));
+      if(m.member_role==="owner")title.append(node("span","pill owner"," OWNER"));
+      if(m.member_role==="moderator")title.append(node("span","pill moderator"," MODERATOR"));
+      card.append(title,node("div","muted small","Account ID: "+m.member_id));
+      if(m.active_action) {
+        const exp=m.action_expires_at?" · expires "+dateText(m.action_expires_at):" · permanent";
+        card.append(node("p","small","Active action: "+m.active_action.toUpperCase()+exp));
+        if(m.action_reason)card.append(node("p","muted small","Reason: "+m.action_reason));
+      } else card.append(node("p","muted small","No active moderation action reported."));
+      const actions=node("div","member-actions");
+      if(m.member_role!=="owner"&&m.member_id!==user.id) {
+        actionButton(actions,"Mute",()=>moderate(m.member_id,"mute"));
+        actionButton(actions,"Kick (2 min)",()=>moderate(m.member_id,"kick"));
+        actionButton(actions,"Temporary ban",()=>moderate(m.member_id,"ban"));
+        actionButton(actions,"Permanent ban",()=>permanentBan(m.member_id),"danger");
+        actionButton(actions,"Unmute / unban",()=>clearModeration(m.member_id),"good");
+        if(m.member_role==="moderator")
+          actionButton(actions,"Remove moderator",()=>setRole(m.member_id,"member"));
+        else actionButton(actions,"Make moderator",()=>setRole(m.member_id,"moderator"));
       }
-
-      card.append(title);
-      card.append(make("div", "muted small", "Account ID: " + safeText(member.member_id)));
-
-      if (member.active_action) {
-        let actionText = "Active action: " + member.active_action.toUpperCase();
-        if (member.action_expires_at) {
-          actionText += " · expires " + formatDate(member.action_expires_at);
-        } else {
-          actionText += " · permanent";
-        }
-        card.append(make("p", "small", actionText));
-        if (member.action_reason) {
-          card.append(make("p", "muted small", "Reason: " + safeText(member.action_reason)));
-        }
-      } else {
-        card.append(make("p", "muted small", "No active moderation action reported."));
-      }
-
-      const actions = make("div", "member-actions");
-
-      if (member.member_role !== "owner" && member.member_id !== currentUser.id) {
-        addMemberAction(actions, "Mute", () => moderate(member.member_id, "mute"));
-        addMemberAction(actions, "Kick", () => moderate(member.member_id, "kick"));
-        addMemberAction(actions, "Temporary ban", () => moderate(member.member_id, "ban"));
-        addMemberAction(actions, "Permanent ban", () => permanentBan(member.member_id), { danger: true });
-        addMemberAction(actions, "Unmute / unban", () => clearModeration(member.member_id), { good: true });
-
-        if (member.member_role === "moderator") {
-          addMemberAction(actions, "Remove moderator", () => setRole(member.member_id, "member"));
-        } else {
-          addMemberAction(actions, "Make moderator", () => setRole(member.member_id, "moderator"));
-        }
-      }
-
-      card.append(actions);
-      fragment.append(card);
+      card.append(actions);frag.append(card);
     }
-
-    el.memberList.replaceChildren(fragment);
+    ui.memberList.replaceChildren(frag);
   }
-
-  async function moderate(targetId, action) {
+  async function moderate(id,action) {
     try {
-      ownerRequired();
-
-      const duration = Number.parseInt(el.moderationDuration.value, 10);
-      if (!Number.isInteger(duration) || duration < 1 || duration > 525600) {
-        throw new Error("Choose a duration from 1 to 525600 minutes.");
-      }
-
-      const reason = el.moderationReason.value.trim();
-
-      const confirmed = window.confirm(
-        "Apply " + action.toUpperCase() + " for " + duration +
-        " minute(s)?\n\nThis will prevent the member from sending messages during the active period."
-      );
-      if (!confirmed) return;
-
-      const { error } = await supabase.rpc("owner_moderate", {
-        target_id: targetId,
-        moderation_action: action,
-        duration_minutes: action === "kick" ? 2 : duration,
-        moderation_reason: reason
+      ownerCheck();
+      const duration=Number.parseInt(ui.duration.value,10);
+      if(!Number.isInteger(duration)||duration<1||duration>525600)throw new Error("Choose a duration from 1 to 525600 minutes.");
+      if(!confirm("Apply "+action.toUpperCase()+"?"))return;
+      const {error}=await sb.rpc("owner_moderate",{
+        target_id:id,moderation_action:action,
+        duration_minutes:action==="kick"?2:duration,
+        moderation_reason:ui.reason.value.trim()
       });
-      if (error) throw error;
-
-      setStatus(el.ownerMessage, action.toUpperCase() + " applied.", "success");
+      if(error)throw error;
+      status(ui.ownerMessage,action.toUpperCase()+" applied.","success");
       await loadMembers();
-    } catch (error) {
-      showError(el.ownerMessage, error);
-    }
+    } catch(ex) { showError(ui.ownerMessage,ex); }
   }
-
-  async function permanentBan(targetId) {
+  async function permanentBan(id) {
     try {
-      ownerRequired();
-      const reason = el.moderationReason.value.trim();
-
-      if (!window.confirm("Permanently ban this account from sending messages? You can unban it later.")) return;
-
-      const { error } = await supabase.rpc("owner_moderate", {
-        target_id: targetId,
-        moderation_action: "ban",
-        duration_minutes: null,
-        moderation_reason: reason
+      ownerCheck();
+      if(!confirm("Permanently ban this account from sending messages? You can unban it later."))return;
+      const {error}=await sb.rpc("owner_moderate",{
+        target_id:id,moderation_action:"ban",duration_minutes:null,
+        moderation_reason:ui.reason.value.trim()
       });
-      if (error) throw error;
-
-      setStatus(el.ownerMessage, "Permanent ban applied.", "success");
+      if(error)throw error;
+      status(ui.ownerMessage,"Permanent ban applied.","success");
       await loadMembers();
-    } catch (error) {
-      showError(el.ownerMessage, error);
-    }
+    } catch(ex) { showError(ui.ownerMessage,ex); }
   }
-
-  async function clearModeration(targetId) {
+  async function clearModeration(id) {
     try {
-      ownerRequired();
-      if (!window.confirm("Clear active mute, kick, and ban actions for this account?")) return;
-
-      const { error } = await supabase.rpc("owner_clear_moderation", {
-        target_id: targetId
-      });
-      if (error) throw error;
-
-      setStatus(el.ownerMessage, "Active moderation cleared.", "success");
+      ownerCheck();
+      if(!confirm("Clear active mute, kick, and ban actions?"))return;
+      const {error}=await sb.rpc("owner_clear_moderation",{target_id:id});
+      if(error)throw error;
+      status(ui.ownerMessage,"Active moderation cleared.","success");
       await loadMembers();
-    } catch (error) {
-      showError(el.ownerMessage, error);
-    }
+    } catch(ex) { showError(ui.ownerMessage,ex); }
   }
-
-  async function setRole(targetId, role) {
+  async function setRole(id,role) {
     try {
-      ownerRequired();
-      if (!window.confirm("Change this member's role to " + role + "?")) return;
-
-      const { error } = await supabase.rpc("owner_set_role", {
-        target_id: targetId,
-        new_role: role
-      });
-      if (error) throw error;
-
-      setStatus(el.ownerMessage, "Member role updated.", "success");
+      ownerCheck();
+      if(!confirm("Change this member's role to "+role+"?"))return;
+      const {error}=await sb.rpc("owner_set_role",{target_id:id,new_role:role});
+      if(error)throw error;
+      status(ui.ownerMessage,"Member role updated.","success");
       await loadMembers();
-    } catch (error) {
-      showError(el.ownerMessage, error);
-    }
+    } catch(ex) { showError(ui.ownerMessage,ex); }
   }
 
   async function initialize() {
-    if (!window.supabase || !window.supabase.createClient) {
-      setConnection("Client failed to load");
-      setStatus(el.authMessage, "Supabase's JavaScript library could not load. Check your internet connection.", "error");
+    if(!window.supabase?.createClient) {
+      connection("Client failed to load");
+      status(ui.authMessage,"Supabase JavaScript failed to load. Check your internet connection.","error");
+      return;
+    }
+    if(SUPABASE_PUBLISHABLE_KEY==="YOUR_SUPABASE_PUBLISHABLE_KEY") {
+      connection("Setup needed");
+      status(ui.authMessage,"Replace YOUR_SUPABASE_PUBLISHABLE_KEY in index.html with your project's publishable key.","error");
       return;
     }
 
-    if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === "YOUR_SUPABASE_PUBLISHABLE_KEY") {
-      setConnection("Setup needed");
-      setStatus(el.authMessage, "Open index.html and replace YOUR_SUPABASE_PUBLISHABLE_KEY with your Supabase publishable key.", "error");
-      return;
-    }
-
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
+    sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
+      auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
     });
 
-    el.loginForm.addEventListener("submit", handleLogin);
-    el.registerForm.addEventListener("submit", handleRegister);
-    el.usernameForm.addEventListener("submit", handleUsernameChange);
-    el.sendForm.addEventListener("submit", handleSend);
-    el.headerLogout.addEventListener("click", signOut);
-    el.refreshMembers.addEventListener("click", loadMembers);
-    el.refreshMessages.addEventListener("click", refreshChat);
+    ui.login.addEventListener("submit",login);
+    ui.register.addEventListener("submit",register);
+    ui.usernameForm.addEventListener("submit",setUsername);
+    ui.send.addEventListener("submit",sendMessage);
+    ui.logout.addEventListener("click",signOut);
+    ui.refreshMembers.addEventListener("click",loadMembers);
+    ui.refreshMessages.addEventListener("click",loadMessages);
 
     try {
-      await requireSession();
-      if (currentUser) {
-        await showSignedInApp();
-      } else {
-        setConnection("Ready", true);
-      }
-    } catch (error) {
-      showError(el.authMessage, error);
-      setConnection("Connection issue");
+      await getSession();
+      if(user)await showApp();
+      else connection("Ready",true);
+    } catch(ex) {
+      showError(ui.authMessage,ex);connection("Connection issue");
     }
 
-    supabase.auth.onAuthStateChange((event, session) => {
-      // Defer database work to avoid doing Supabase requests inside the auth callback.
-      window.setTimeout(async () => {
+    sb.auth.onAuthStateChange((event,session)=>{
+      setTimeout(async()=>{
         try {
-          if (session && session.user) {
-            currentUser = session.user;
-            await showSignedInApp();
+          if(session?.user) {
+            user=session.user;
+            await showApp();
+            // If email confirmation was enabled, finish the requested display name
+            // after the first successful sign-in.
+            let pending="";
+            try {
+              pending=sessionStorage.getItem("piltae_pending_username")||"";
+            } catch(_) {}
+            if(pending&&validName(pending)&&profile.username.startsWith("member_")) {
+              const {error}=await sb.rpc("set_chat_username",{new_username:pending});
+              if(!error) {
+                try { sessionStorage.removeItem("piltae_pending_username"); } catch(_) {}
+                await loadProfile();updateAccount();lastFingerprint="";await loadMessages();
+              }
+            }
           } else {
             await signOutLocal();
           }
-        } catch (error) {
-          showError(el.authMessage, error);
-        }
-      }, 0);
+        } catch(ex) { showError(ui.authMessage,ex); }
+      },0);
     });
   }
 
